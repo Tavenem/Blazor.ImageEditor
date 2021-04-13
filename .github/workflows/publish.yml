@@ -44,7 +44,7 @@ jobs:
       #  working-directory: ./src
 
       - name: Pack
-        run: dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ env.VERSION }} --configuration Release --no-build --nologo --output .
+        run: dotnet pack ./Tavenem.Blazor.ImageEditor.csproj --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ env.VERSION }} --configuration Release --no-build --nologo --output .
         working-directory: ./src
 
       - name: Push to NuGet
