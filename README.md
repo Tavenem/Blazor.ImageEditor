@@ -25,7 +25,7 @@ project).
    or _Host.cshtml (for Blazor server):
 
    ````html
-   <link rel="stylesheet" href="_content/Tavenem.Blazor.ImageEditor/style.css" />_
+   <link rel="stylesheet" href="_content/Tavenem.Blazor.ImageEditor/style.css" />
    ````
 
    Note that you must [enable static
