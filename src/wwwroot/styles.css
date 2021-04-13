@@ -1,0 +1,6 @@
+textarea[data-fabric-hiddentextarea] {
+    padding: 0;
+    border: 0;
+    margin-left: -1px;
+    margin-top: -1px;
+}

@@ -1,0 +1,17 @@
+﻿@page "/"
+
+<div class="d-flex flex-grow-1 position-relative" style="max-width: 800px">
+    @if (IsLoading)
+    {
+        <div id="loader">
+            <div id="loadText">
+                <h4>@LoadText</h4>
+            </div>
+        </div>
+    }
+    <div class="flex-grow-1">
+        <ImageEditor @ref="ImageEditor"
+                     GetObjUrlCallback="GetObjUrlAsync"
+                     SaveJsonCallback="SaveJsonAsync"/>
+    </div>
+</div>

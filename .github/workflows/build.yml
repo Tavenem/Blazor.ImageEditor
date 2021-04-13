@@ -1,0 +1,28 @@
+name: build
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup .NET 5
+        uses: actions/setup-dotnet@v1
+        with:
+          # Semantic version range syntax or exact version of a dotnet version
+          dotnet-version: '5.0.x'
+
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: ./src
+
+      - name: Build
+        run: dotnet build --configuration Debug --no-restore --nologo
+        working-directory: ./src
+
+      #- name: Test
+      #  run: dotnet test --no-build --verbosity normal
+      #  working-directory: ./src
