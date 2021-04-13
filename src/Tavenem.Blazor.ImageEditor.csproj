@@ -38,6 +38,7 @@
     <None Include="tavenem_128.png" Pack="true" PackagePath="\" />
     <Content Update="package.json" Pack="false" />
     <Content Update="package-lock.json" Pack="false" />
+    <Content Update="rollup.config.js" Pack="false" />
     <Content Update="tsconfig.json" Pack="false" />
   </ItemGroup>
 
