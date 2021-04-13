@@ -14,9 +14,22 @@ jobs:
         with:
           # Semantic version range syntax or exact version of a dotnet version
           dotnet-version: '5.0.x'
+      
+      - name: Use Node.js 15.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
 
       - name: Install dependencies
         run: dotnet restore
+        working-directory: ./src
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src
+
+      - name: npm build
+        run: npm run build --if-present
         working-directory: ./src
 
       - name: Build
