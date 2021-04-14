@@ -20,13 +20,13 @@
             <canvas @ref="EditorCanvas" touch-action="none"></canvas>
         </div>
     </div>
-    @if (ShowControls)
+    @if (Editing)
     {
-        @if (Editing)
-        {
-            <div class="col-auto">
-                <div class="card">
-                    <div class="card-body">
+        <div class="col-auto">
+            <div class="card">
+                <div class="card-body">
+                    @if (ShowEditControls)
+                    {
                         <div class="row">
                             <div class="col">
                                 <div class="btn-toolbar m-1 justify-content-between" role="toolbar" aria-label="Image file toolbar">
@@ -319,44 +319,59 @@
                                 </div>
                             </div>
                         }
-                    </div>
+                    }
+                    @if (EditContent is not null)
+                    {
+                        <div class="row">
+                            <div class="col">
+                                @EditContent
+                            </div>
+                        </div>
+                    }
+                    @if (ChildContent is not null)
+                    {
+                        <div class="row">
+                            <div class="col">
+                                @ChildContent
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-        }
-        else
-        {
-            <div class="col-auto d-flex flex-column">
-                <button class="btn btn-secondary btn-sm mb-1" @onclick="BeginEditAsync">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                    </svg>
-                </button>
-                @if (ChildContent is not null)
-                {
-                    <div>
+        </div>
+    }
+    else
+    {
+        <div class="col-auto d-flex flex-column">
+            @if (ShowEditButton)
+            {
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-secondary btn-sm mb-1" @onclick="BeginEditAsync">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            }
+            @if (PreviewContent is not null)
+            {
+                <div class="row">
+                    <div class="col">
+                        @PreviewContent
+                    </div>
+                </div>
+            }
+            @if (ChildContent is not null)
+            {
+                <div class="row">
+                    <div class="col">
                         @ChildContent
                     </div>
-                }
-            </div>
-        }
-    }
-    else if (Editing && EditContent is not null)
-    {
-        <div class="col-auto">
-            @EditContent
-        </div>
-    }
-    else if (!Editing && PreviewContent is not null)
-    {
-        <div class="col-auto">
-            @PreviewContent
-        </div>
-    }
-    else if (ChildContent is not null)
-    {
-        <div class="col-auto">
-            @ChildContent
+                </div>
+            }
         </div>
     }
 </div>

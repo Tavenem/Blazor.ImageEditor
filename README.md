@@ -58,15 +58,22 @@ project).
    user may draw.
 
 1. The user may toggle the control from preview mode (displays the original image) to edit mode with
-   a button. Edit mode displays a selection of common image editing controls which allow drawing
-   onto the image.
+   a button.
    
-   Alternatively, you may set the `ShowControls` parameter to false to disable the standard user
-   interface. If you do so you will need to supply a custom UI (see below), or control the component
-   programmatically.
+   Alternatively, you may set the `ShowEditButton` parameter to false to disable the edit mode
+   button. In that case you can toggle edit mode programmatically with the `BeginEditAsync` and
+   `CancelEditAsync` methods. You can also supply custom UI to replace the default button (see below
+   for more information).
 
-1. By default users will have a "download" button that will invoke the browser's file save option,
-   to save a copy of their edited image. You may also choose to provide values for the
+1. When in edit mode, the component displays a selection of common image editing controls which
+   allow drawing onto the image.
+   
+   Alternatively, you may set the `ShowEditControls` parameter to false to disable the default edit
+   UI. In that case you would need to supply custom UI to enable image editing (see below for more
+   information).
+
+1. The default UI includes a "download" button that will invoke the browser's file save option, to
+   save a copy of their edited image. You may also choose to provide values for the
    `GetObjUrlCallback` and/or `SaveJsonCallback` parameters. If you do the user will also see an
    additional "save" button which will invoke both of these callbacks.
    
@@ -85,21 +92,21 @@ project).
    of the editor's state. This can be passed to the `LoadJSONAsync(string?)` method to allow a user
    to resume editing where they left off.
 
-The `ImageEditor` component supports two options for custom UI:
+The `ImageEditor` component supports multiple options for adding custom UI:
 
-  - You can supply `ChildContent` (additional markup nested inside the component, with or without
-    a wrapping ChildContent element) which will be displayed alongside the existing controls in
-    preview mode, and whenever the `ShowControls` parameter has been set to false.
+  - If you supply `ChildContent` (additional markup nested inside the component, with or without a
+    wrapping `ChildContent` element), it will be displayed below the existing controls in both edit
+    and preview mode (regardless of the `ShowEditControls` parameter's value).
 
-  - **OR** you can supply `EditContent` and/or `PreviewContent` child components, which will be
-    displayed *only* when the `ShowControls` parameter has been set to false. `EditContent` will
-    then be displayed when the control is in edit mode, and `PreviewContent` will be shown in
-    preview mode.
-      
-    Note that there will be no default UI for toggling between modes when `ShowControls` is false.
-    You must either toggle modes programmatically (with the `BeginEditAsync` and `CancelEditAsync`
-    methods), or provide your own UI in the `EditContent` and `PreviewContent` content that hooks
-    into those methods.
+  - If you supply an `EditContent` child element, it will be displayed when the control is in edit
+    mode (regardless of the `ShowEditControls` parameter's value). If you *also* provide an explicit
+    `ChildContent` element, the `ChildContent` will be displayed below the `EditContent` when in
+    edit mode.
+
+  - If you supply a `PreviewContent` child element, it will be displayed when the control is in
+    preview mode (regardless of the `ShowEditButton` parameter's value). If you *also* provide an
+    explicit `ChildContent` element, the `ChildContent` will be displayed below the `PreviewContent`
+    when in preview mode.
 
 ## Roadmap
 

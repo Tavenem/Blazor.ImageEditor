@@ -67,9 +67,14 @@ namespace Tavenem.Blazor.ImageEditor
         [Parameter] public Func<string?, Task>? SaveJsonCallback { get; set; }
 
         /// <summary>
+        /// Determines whether the standard image edit UI is displayed.
+        /// </summary>
+        [Parameter] public bool ShowEditControls { get; set; } = true;
+
+        /// <summary>
         /// Determines whether the toggle to enter edit mode is displayed.
         /// </summary>
-        [Parameter] public bool ShowControls { get; set; } = true;
+        [Parameter] public bool ShowEditButton { get; set; } = true;
 
         /// <summary>
         /// Gets the current stroke color, as a hex string.
