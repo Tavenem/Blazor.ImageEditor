@@ -21,10 +21,11 @@ Tavenem.Blazor.ImageEditor is available as a [NuGet package](https://www.nuget.o
 `Program.Main` for a Blazor WebAssembly project, or `Startup.ConfigureServices` for a Blazor server
 project).
 
-1. Add the following css reference to the head section of your index.html (for Blazor WebAssembly)
+1. Add the following css references to the head section of your index.html (for Blazor WebAssembly)
    or _Host.cshtml (for Blazor server):
 
    ````html
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
    <link rel="stylesheet" href="_content/Tavenem.Blazor.ImageEditor/style.css" />
    ````
 
@@ -32,10 +33,14 @@ project).
    files](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files) to serve content
    from a RCL.
 
-   Why is this stylesheet not included via [Blazor CSS
+   Why is the custom stylesheet not included via [Blazor CSS
    isolation](https://docs.microsoft.com/en-us/aspnet/core/blazor/components/css-isolation)? Because
    it must apply outside the scope of the component. It refers to a dynamically-generated DOM
    element managed by the [Fabric.js](http://fabricjs.com/) library which is appended to the body.
+
+   You may supply any version of Bootstrap compatible with the listed version. Alternatively, you
+   may omit the Bootstrap reference entirely. However, the control will not display well unless you
+   provide compatible alternative styling in your own stylesheets.
 
 1. Add the following script references to the bottom fo the body section of your index.html (for
    Blazor WebAssembly) or _Host.cshtml (for Blazor server):
