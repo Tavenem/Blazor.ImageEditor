@@ -374,6 +374,18 @@ namespace Tavenem.Blazor.ImageEditor
         }
 
         /// <summary>
+        /// <para>
+        /// Sets the URL of the preview image displayed when not in edit mode.
+        /// </para>
+        /// <para>
+        /// Note that if an image is loaded with <see cref="LoadImageAsync(string?)"/> <i>after</i>
+        /// setting a preview, it will be overwritten with the loaded image.
+        /// </para>
+        /// </summary>
+        /// <param name="url">The URL of the preview image.</param>
+        public void SetPreviewUrl(string? url) => PreviewUrl = url;
+
+        /// <summary>
         /// Controls whether the editor should be cleared each time a new mark is made.
         /// </summary>
         /// <param name="value">Whether the editor should be cleared each time a new mark is

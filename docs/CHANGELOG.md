@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0-preview
+### Changed
+- Added ability to set custom preview URL.
+
 ## 0.2.0-preview
 ### Changed
 - Improve child content element behavior.
