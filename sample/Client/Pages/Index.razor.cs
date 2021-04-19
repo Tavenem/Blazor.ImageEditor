@@ -45,7 +45,8 @@ namespace Tavenem.Blazor.ImageEditor.Sample.Client.Pages
                 }
                 if (await FileExistsAsync("editorjson.json").ConfigureAwait(false))
                 {
-                    await ImageEditor.LoadJSONAsync(Path.Combine(host, "editorjson.json")).ConfigureAwait(false);
+                    var json = await HttpClient.GetStringAsync(Path.Combine(host, "editorjson.json")).ConfigureAwait(false);
+                    await ImageEditor.LoadJSONAsync(json).ConfigureAwait(false);
                 }
             }
 

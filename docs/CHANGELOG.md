@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1-preview
+### Changed
+- Improve custom content layout.
+### Fixed
+- Fixed sample image load.
+
 ## 0.3.0-preview
 ### Changed
 - Added ability to set custom preview URL.
