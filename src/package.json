@@ -3,10 +3,10 @@
   "name": "tavenemblazorimageeditor",
   "private": true,
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "11.2.1",
-    "@types/fabric": "4.2.5",
-    "@types/webfontloader": "1.6.32",
-    "rollup": "2.45.1",
+    "@rollup/plugin-node-resolve": "13.0.4",
+    "@types/fabric": "4.5.2",
+    "@types/webfontloader": "1.6.33",
+    "rollup": "2.56.3",
     "rollup-plugin-terser": "7.0.2"
   },
   "scripts": {

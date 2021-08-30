@@ -4,24 +4,22 @@
       "anonymousAuthentication": true,
       "iisExpress": {
         "applicationUrl": "http://localhost:7444",
-        "sslPort": 0
+        "sslPort": 44304
       }
     },
     "profiles": {
       "IIS Express": {
         "commandName": "IISExpress",
         "launchBrowser": true,
-        "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }
       },
       "Tavenem.Blazor.ImageEditor.Sample.Server": {
         "commandName": "Project",
-        "dotnetRunMessages": "true",
+        "dotnetRunMessages": true,
         "launchBrowser": true,
-        "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-        "applicationUrl": "http://localhost:5000",
+        "applicationUrl": "https://localhost:5000;http://localhost:5000",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }

@@ -8,10 +8,6 @@ interface IPoint {
 
 declare module 'fabric' {
     export namespace fabric {
-        export class Control {
-            constructor(options: any);
-        }
-
         export interface IText {
             curvePoint?: IPoint
         }
@@ -19,21 +15,11 @@ declare module 'fabric' {
         export interface Object {
             __corner: string;
 
-            controls: any;
-
             _calcRotateMatrix(): number[];
 
             _calcTranslateMatrix(): number[];
 
             _calculateCurrentDimensions(): IPoint;
-
-            /**
-                * Sets the position of the object taking into consideration the object's origin
-                * @param pos The new position of the object
-                * @param originX Horizontal origin: 'left', 'center' or 'right'
-                * @param originY Vertical origin: 'top', 'center' or 'bottom'
-                */
-            setPositionByOrigin(pos: Point, originX: string | number, originY: string | number): void;
         }
     }
 }
@@ -83,7 +69,7 @@ interface Dimensions {
     y: number;
 }
 
-interface CurveControl {
+interface CurveControl extends fabric.Control {
     pointIndex: number;
     pointIsCurve: boolean;
 }
@@ -299,8 +285,9 @@ class PathDrawTool implements IDrawTool {
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: 0
         });
+        let cc = obj.controls['csc'] as CurveControl;
+        cc.pointIndex = 0;
         this.addControlPoint(obj, 1);
         return obj;
     }
@@ -376,15 +363,18 @@ class PathDrawTool implements IDrawTool {
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: index,
-            pointIsCurve: true,
         });
+        let cc = object.controls[`cqc${index}`] as CurveControl;
+        cc.pointIndex = index;
+        cc.pointIsCurve = true;
+
         object.controls[`cpc${index}`] = new fabric.Control({
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: index
         });
+        cc = object.controls[`cpc${index}`] as CurveControl;
+        cc.pointIndex = index;
     }
 
     private curveActionHandler(eventData: MouseEvent, transform: Transform, x: number, y: number): boolean {
@@ -393,7 +383,7 @@ class PathDrawTool implements IDrawTool {
         }
         const activeItem = transform.target,
             path = activeItem.path as any[];
-        const currentControl = activeItem.controls[activeItem.__corner],
+        const currentControl = activeItem.controls[activeItem.__corner] as CurveControl,
             baseSize = activeItem._getNonTransformedDimensions(),
             size = activeItem._getTransformedDimensions(),
             strokeWidth = activeItem.strokeWidth ?? 1,
@@ -1425,11 +1415,13 @@ class Editor {
             this._lastY = y;
         } else if (this._alt) {
             const obj = this.fabricCanvas.getActiveObject() as fabric.Path;
+            console.log(obj);
             if (obj instanceof fabric.Path) {
                 const tool = this._drawTools[DrawingMode.Path] as PathDrawTool;
                 this._mouseDown = true;
                 this.fabricCanvas.selection = false;
                 tool.addPoint(obj, x, y);
+                this.fabricCanvas.renderAll();
             }
         } else if (this._cursorMode === CursorMode.Draw
             && !this.fabricCanvas.isDrawingMode

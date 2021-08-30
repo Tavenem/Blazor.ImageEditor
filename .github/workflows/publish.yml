@@ -1,6 +1,6 @@
 name: publish
 env:
-  VERSION: '0.3.1-preview'
+  VERSION: '0.4.0-preview'
   PRERELEASE: true
 on:
   push:
@@ -12,16 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Setup .NET 5
+      - name: Setup .NET 6
         uses: actions/setup-dotnet@v1
         with:
           # Semantic version range syntax or exact version of a dotnet version
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0.x'
+          include-prerelease: true
       
-      - name: Use Node.js 15.x
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
-          node-version: 15.x
+          node-version: 16.x
 
       - name: Install dependencies
         run: dotnet restore

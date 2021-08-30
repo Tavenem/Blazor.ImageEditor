@@ -176,8 +176,9 @@ class PathDrawTool {
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: 0
         });
+        let cc = obj.controls['csc'];
+        cc.pointIndex = 0;
         this.addControlPoint(obj, 1);
         return obj;
     }
@@ -245,15 +246,17 @@ class PathDrawTool {
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: index,
-            pointIsCurve: true,
         });
+        let cc = object.controls[`cqc${index}`];
+        cc.pointIndex = index;
+        cc.pointIsCurve = true;
         object.controls[`cpc${index}`] = new fabric.Control({
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
-            pointIndex: index
         });
+        cc = object.controls[`cpc${index}`];
+        cc.pointIndex = index;
     }
     curveActionHandler(eventData, transform, x, y) {
         if (!(transform.target instanceof fabric.Path)) {
@@ -1139,11 +1142,13 @@ class Editor {
         }
         else if (this._alt) {
             const obj = this.fabricCanvas.getActiveObject();
+            console.log(obj);
             if (obj instanceof fabric.Path) {
                 const tool = this._drawTools[3];
                 this._mouseDown = true;
                 this.fabricCanvas.selection = false;
                 tool.addPoint(obj, x, y);
+                this.fabricCanvas.renderAll();
             }
         }
         else if (this._cursorMode === 0

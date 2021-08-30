@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-preview
+### Changed
+- Update to .NET 6 preview
+- Update to C# 10 preview
+- Update to Node.js 16
+
 ## 0.3.1-preview
 ### Changed
 - Improve custom content layout.
