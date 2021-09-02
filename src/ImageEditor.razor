@@ -1,7 +1,7 @@
 ﻿@inherits AsyncOwningComponentBase<ImageEditorService>
 
 <div class="row g-2 flex-grow-1">
-    <div class="col d-grid">
+    <div class="col col-sm-9 d-grid">
         @if (IsLoading)
         {
             <div class="loader">
@@ -22,7 +22,7 @@
     </div>
     @if (Editing)
     {
-        <div class="col-auto">
+        <div class="col col-sm-3">
             <div class="card">
                 <div class="card-body">
                     @if (ShowEditControls)
@@ -342,7 +342,7 @@
     }
     else
     {
-        <div class="col-auto d-flex flex-column">
+        <div class="col col-sm-3 d-flex flex-column">
             @if (ShowEditButton)
             {
                 <div class="row">

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1-preview
+### Changed
+- Column sizing
+
 ## 0.4.0-preview
 ### Changed
 - Update to .NET 6 preview
