@@ -20,7 +20,7 @@ public class ImageEditorService : IAsyncDisposable
     public ImageEditorService(IJSRuntime jsRuntime)
     {
         _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-        "import", "./_content/Tavenem.Blazor.ImageEditor/editor.js").AsTask());
+        "import", "./_content/Tavenem.Blazor.ImageEditor/tavenem-image-editor.js").AsTask());
         _objectURLs = new(() => new List<string>());
     }
 

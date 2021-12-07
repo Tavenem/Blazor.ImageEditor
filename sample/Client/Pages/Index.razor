@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-<div class="d-flex flex-grow-1 position-relative" style="max-width: 800px">
+<div class="container">
     @if (IsLoading)
     {
         <div id="loader">
@@ -9,7 +9,7 @@
             </div>
         </div>
     }
-    <div class="flex-grow-1">
+    <div class="grow">
         <ImageEditor @ref="ImageEditor"
                      GetObjUrlCallback="GetObjUrlAsync"
                      SaveJsonCallback="SaveJsonAsync"/>

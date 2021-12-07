@@ -1,94 +1,11 @@
-﻿/// <reference path="../node_modules/@types/fabric/index.d.ts" />
-/// <reference path="../node_modules/@types/webfontloader/index.d.ts" />
-
-interface IPoint {
-    x: number;
-    y: number;
-}
-
-declare module 'fabric' {
-    export namespace fabric {
-        export interface IText {
-            curvePoint?: IPoint
-        }
-
-        export interface Object {
-            __corner: string;
-
-            _calcRotateMatrix(): number[];
-
-            _calcTranslateMatrix(): number[];
-
-            _calculateCurrentDimensions(): IPoint;
-        }
+import WebFont from "webfontloader";
+class EllipseDrawTool {
+    constructor() {
+        this.originX = 0;
+        this.originY = 0;
+        this.drawingMode = 0;
     }
-}
-
-const enum CursorMode {
-    Draw,
-    Select,
-}
-
-const enum DrawingMode {
-    Ellipse,
-    Line,
-    Rectangle,
-    Path,
-    Text,
-    Triangle,
-    Free,
-}
-
-interface IDrawTool {
-    drawingMode: DrawingMode;
-
-    readonly make: (
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean,
-        font?: string) => fabric.Object;
-
-    readonly resize: (
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean) => fabric.Object;
-}
-
-interface Transform {
-    target: fabric.Object;
-}
-
-interface Dimensions {
-    x: number;
-    y: number;
-}
-
-interface CurveControl extends fabric.Control {
-    pointIndex: number;
-    pointIsCurve: boolean;
-}
-
-type StrokeLineCap = 'butt' | 'round' | 'square';
-
-class EllipseDrawTool implements IDrawTool {
-    private originX: number = 0;
-    private originY: number = 0;
-
-    drawingMode: DrawingMode = DrawingMode.Ellipse;
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean): fabric.Ellipse {
+    make(startX, startY, endX, endY, options, shift) {
         this.originX = startX;
         this.originY = startY;
         if (shift) {
@@ -108,14 +25,7 @@ class EllipseDrawTool implements IDrawTool {
             ...options
         });
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.Ellipse) {
             if (shift) {
                 const size = Math.max(Math.abs(this.originX - x), Math.abs(this.originY - y));
@@ -136,17 +46,11 @@ class EllipseDrawTool implements IDrawTool {
         return object;
     }
 }
-
-class LineDrawTool implements IDrawTool {
-    drawingMode: DrawingMode = DrawingMode.Line;
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean): fabric.Line {
+class LineDrawTool {
+    constructor() {
+        this.drawingMode = 1;
+    }
+    make(startX, startY, endX, endY, options, shift) {
         if (shift) {
             const sizeX = Math.abs(startX - endX);
             const sizeY = Math.abs(startY - endY);
@@ -158,12 +62,14 @@ class LineDrawTool implements IDrawTool {
                 endY = startY > endY
                     ? startY - maxSize
                     : startY + maxSize;
-            } else if (sizeX > sizeY) {
+            }
+            else if (sizeX > sizeY) {
                 endX = startX > endX
                     ? startX - maxSize
                     : startX + maxSize;
                 endY = startY;
-            } else {
+            }
+            else {
                 endX = startX;
                 endY = startY > endY
                     ? startY - maxSize
@@ -172,14 +78,7 @@ class LineDrawTool implements IDrawTool {
         }
         return new fabric.Line([startX, startY, endX, endY], options);
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.Line) {
             if (shift) {
                 const sizeX = Math.abs((object.x1 ?? 0) - x);
@@ -192,12 +91,14 @@ class LineDrawTool implements IDrawTool {
                     y = (object.y1 ?? 0) > y
                         ? (object.y1 ?? 0) - maxSize
                         : (object.y1 ?? 0) + maxSize;
-                } else if (sizeX > sizeY) {
+                }
+                else if (sizeX > sizeY) {
                     x = (object.x1 ?? 0) > x
                         ? (object.x1 ?? 0) - maxSize
                         : (object.x1 ?? 0) + maxSize;
                     y = (object.y1 ?? 0);
-                } else {
+                }
+                else {
                     x = (object.x1 ?? 0);
                     y = (object.y1 ?? 0) > y
                         ? (object.y1 ?? 0) - maxSize
@@ -212,21 +113,19 @@ class LineDrawTool implements IDrawTool {
         return object;
     }
 }
-
-class PathDrawTool implements IDrawTool {
-    drawingMode: DrawingMode = DrawingMode.Line;
-
-    addPoint(object: fabric.Path, x: number, y: number) {
-        const path = object.path as any[];
+class PathDrawTool {
+    constructor() {
+        this.drawingMode = 1;
+    }
+    addPoint(object, x, y) {
+        const path = object.path;
         const points = path.length + 1;
         path.push([
             'Q',
             x, y,
             x, y
         ]);
-
-        const center = object.getCenterPoint(),
-            newPathObject = new fabric.Path(path);
+        const center = object.getCenterPoint(), newPathObject = new fabric.Path(path);
         object.set({
             path: newPathObject.path,
             width: newPathObject.width,
@@ -235,18 +134,10 @@ class PathDrawTool implements IDrawTool {
             pathOffset: newPathObject.pathOffset
         }).setCoords();
         object.setPositionByOrigin(center, 'center', 'center');
-
         this.addControlPoint(object, points - 1);
     }
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean): fabric.Path {
-        const path: any[] = [[], []];
+    make(startX, startY, endX, endY, options, shift) {
+        const path = [[], []];
         if (shift) {
             const sizeX = Math.abs(startX - endX);
             const sizeY = Math.abs(startY - endY);
@@ -258,12 +149,14 @@ class PathDrawTool implements IDrawTool {
                 endY = startY > endY
                     ? startY - maxSize
                     : startY + maxSize;
-            } else if (sizeX > sizeY) {
+            }
+            else if (sizeX > sizeY) {
                 endX = startX > endX
                     ? startX - maxSize
                     : startX + maxSize;
                 endY = startY;
-            } else {
+            }
+            else {
                 endX = startX;
                 endY = startY > endY
                     ? startY - maxSize
@@ -278,7 +171,6 @@ class PathDrawTool implements IDrawTool {
         path[1][2] = endY;
         path[1][3] = endX;
         path[1][4] = endY;
-
         const obj = new fabric.Path(path, options);
         obj.controls = { ...fabric.Object.prototype.controls };
         obj.controls['csc'] = new fabric.Control({
@@ -286,21 +178,14 @@ class PathDrawTool implements IDrawTool {
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
         });
-        let cc = obj.controls['csc'] as CurveControl;
+        let cc = obj.controls['csc'];
         cc.pointIndex = 0;
         this.addControlPoint(obj, 1);
         return obj;
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.Path && object.path) {
-            const objectPath: any[] = object.path;
+            const objectPath = object.path;
             const movingPointIndex = objectPath.length - 1;
             if (shift && movingPointIndex === 1) {
                 const sizeX = Math.abs(objectPath[0][1] - x);
@@ -313,12 +198,14 @@ class PathDrawTool implements IDrawTool {
                     y = objectPath[0][2] > y
                         ? objectPath[0][2] - maxSize
                         : objectPath[0][2] + maxSize;
-                } else if (sizeX > sizeY) {
+                }
+                else if (sizeX > sizeY) {
                     x = objectPath[0][1] > x
                         ? objectPath[0][1] - maxSize
                         : objectPath[0][1] + maxSize;
                     y = objectPath[0][2];
-                } else {
+                }
+                else {
                     x = objectPath[0][1];
                     y = objectPath[0][2] > y
                         ? objectPath[0][2] - maxSize
@@ -330,9 +217,7 @@ class PathDrawTool implements IDrawTool {
             path[movingPointIndex][2] = y;
             path[movingPointIndex][3] = x;
             path[movingPointIndex][4] = y;
-
-            const center = object.getCenterPoint(),
-                newPathObject = new fabric.Path(path);
+            const center = object.getCenterPoint(), newPathObject = new fabric.Path(path);
             object.set({
                 path: newPathObject.path,
                 width: newPathObject.width,
@@ -357,61 +242,47 @@ class PathDrawTool implements IDrawTool {
         }
         return object;
     }
-
-    private addControlPoint(object: fabric.Path, index: number) {
+    addControlPoint(object, index) {
         object.controls[`cqc${index}`] = new fabric.Control({
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
         });
-        let cc = object.controls[`cqc${index}`] as CurveControl;
+        let cc = object.controls[`cqc${index}`];
         cc.pointIndex = index;
         cc.pointIsCurve = true;
-
         object.controls[`cpc${index}`] = new fabric.Control({
             positionHandler: this.curvePositionHandler,
             actionHandler: this.curveActionHandler,
             actionName: 'modifyCurve',
         });
-        cc = object.controls[`cpc${index}`] as CurveControl;
+        cc = object.controls[`cpc${index}`];
         cc.pointIndex = index;
     }
-
-    private curveActionHandler(eventData: MouseEvent, transform: Transform, x: number, y: number): boolean {
+    curveActionHandler(eventData, transform, x, y) {
         if (!(transform.target instanceof fabric.Path)) {
             return false;
         }
-        const activeItem = transform.target,
-            path = activeItem.path as any[];
-        const currentControl = activeItem.controls[activeItem.__corner] as CurveControl,
-            baseSize = activeItem._getNonTransformedDimensions(),
-            size = activeItem._getTransformedDimensions(),
-            strokeWidth = activeItem.strokeWidth ?? 1,
-            stroke: IPoint = {
-                x: activeItem.strokeUniform ? strokeWidth : strokeWidth * (activeItem.scaleX ?? 1),
-                y: activeItem.strokeUniform ? strokeWidth : strokeWidth * (activeItem.scaleY ?? 1)
-            },
-            scaleX = (baseSize.x - strokeWidth) / (size.x - stroke.x),
-            scaleY = (baseSize.y - strokeWidth) / (size.y - stroke.x),
-            localPoint = activeItem.toLocalPoint(new fabric.Point(x, y), 'center', 'center'),
-            finalLocalPoint = new fabric.Point(
-                localPoint.x * scaleX + activeItem.pathOffset.x,
-                localPoint.y * scaleY + activeItem.pathOffset.y
-            );
+        const activeItem = transform.target, path = activeItem.path;
+        const currentControl = activeItem.controls[activeItem.__corner], baseSize = activeItem._getNonTransformedDimensions(), size = activeItem._getTransformedDimensions(), strokeWidth = activeItem.strokeWidth ?? 1, stroke = {
+            x: activeItem.strokeUniform ? strokeWidth : strokeWidth * (activeItem.scaleX ?? 1),
+            y: activeItem.strokeUniform ? strokeWidth : strokeWidth * (activeItem.scaleY ?? 1)
+        }, scaleX = (baseSize.x - strokeWidth) / (size.x - stroke.x), scaleY = (baseSize.y - strokeWidth) / (size.y - stroke.x), localPoint = activeItem.toLocalPoint(new fabric.Point(x, y), 'center', 'center'), finalLocalPoint = new fabric.Point(localPoint.x * scaleX + activeItem.pathOffset.x, localPoint.y * scaleY + activeItem.pathOffset.y);
         if (currentControl.pointIndex === 0) {
             path[0][1] = finalLocalPoint.x;
             path[0][2] = finalLocalPoint.y;
-        } else if (currentControl.pointIsCurve) {
+        }
+        else if (currentControl.pointIsCurve) {
             if (editor && editor.shift) {
                 path[currentControl.pointIndex][1] = path[currentControl.pointIndex][3];
                 path[currentControl.pointIndex][2] = path[currentControl.pointIndex][4];
-            } else {
+            }
+            else {
                 path[currentControl.pointIndex][1] = finalLocalPoint.x;
                 path[currentControl.pointIndex][2] = finalLocalPoint.y;
             }
-        } else {
-            // If the line is perfectly straight then we want to keep the quadratic value the same as the end point to avoid bending it
-            // But if it has had bend applied to it then the two can be treated separately
+        }
+        else {
             if ((path[currentControl.pointIndex][1] === path[currentControl.pointIndex][3])
                 && (path[currentControl.pointIndex][2] === path[currentControl.pointIndex][4])) {
                 path[currentControl.pointIndex][1] = finalLocalPoint.x;
@@ -420,8 +291,7 @@ class PathDrawTool implements IDrawTool {
             path[currentControl.pointIndex][3] = finalLocalPoint.x;
             path[currentControl.pointIndex][4] = finalLocalPoint.y;
         }
-        const center = activeItem.getCenterPoint(),
-            newPathObject = new fabric.Path(path);
+        const center = activeItem.getCenterPoint(), newPathObject = new fabric.Path(path);
         activeItem.set({
             path: newPathObject.path,
             width: newPathObject.width,
@@ -432,63 +302,48 @@ class PathDrawTool implements IDrawTool {
         activeItem.setPositionByOrigin(center, 'center', 'center');
         return true;
     }
-
-    private curvePositionHandler(this: CurveControl, dim: Dimensions, finalMatrix: any[], fabricObject: fabric.Object): fabric.Point {
+    curvePositionHandler(dim, finalMatrix, fabricObject) {
         if (!(fabricObject instanceof fabric.Path)) {
             return new fabric.Point(0, 0);
         }
-        const path = fabricObject.path as any[];
-        let x: number, y: number;
+        const path = fabricObject.path;
+        let x, y;
         if (this.pointIndex === 0) {
             x = path[0][1] - fabricObject.pathOffset.x;
             y = path[0][2] - fabricObject.pathOffset.y;
-        } else if (this.pointIsCurve) {
-            // If the line is perfectly straight then we want to keep the bend anchor in the middle
-            // But if it has had bend applied to it then we let it stay where it was dragged
+        }
+        else if (this.pointIsCurve) {
             if ((path[this.pointIndex][1] === path[this.pointIndex][3]) && (path[this.pointIndex][2] === path[this.pointIndex][4])) {
                 const previousPointX = this.pointIndex === 1 ? 1 : 3;
                 const previousPointY = this.pointIndex === 1 ? 2 : 4;
                 x = ((path[this.pointIndex - 1][previousPointX] + path[this.pointIndex][3]) / 2) - fabricObject.pathOffset.x;
                 y = ((path[this.pointIndex - 1][previousPointY] + path[this.pointIndex][4]) / 2) - fabricObject.pathOffset.y;
-            } else {
+            }
+            else {
                 x = path[this.pointIndex][1] - fabricObject.pathOffset.x;
                 y = path[this.pointIndex][2] - fabricObject.pathOffset.y;
             }
-        } else {
+        }
+        else {
             x = path[this.pointIndex][3] - fabricObject.pathOffset.x;
             y = path[this.pointIndex][4] - fabricObject.pathOffset.y;
         }
         if (fabricObject.canvas
             && fabricObject.canvas.viewportTransform) {
-            return fabric.util.transformPoint(
-                new fabric.Point(x, y),
-                fabric.util.multiplyTransformMatrices(
-                    fabricObject.canvas.viewportTransform,
-                    fabricObject.calcTransformMatrix()
-                )
-            );
-        } else {
-            return fabric.util.transformPoint(
-                new fabric.Point(x, y),
-                fabricObject.calcTransformMatrix()
-            );
+            return fabric.util.transformPoint(new fabric.Point(x, y), fabric.util.multiplyTransformMatrices(fabricObject.canvas.viewportTransform, fabricObject.calcTransformMatrix()));
+        }
+        else {
+            return fabric.util.transformPoint(new fabric.Point(x, y), fabricObject.calcTransformMatrix());
         }
     }
 }
-
-class RectangleDrawTool implements IDrawTool {
-    private originX: number = 0;
-    private originY: number = 0;
-
-    drawingMode: DrawingMode = DrawingMode.Rectangle;
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean): fabric.Rect {
+class RectangleDrawTool {
+    constructor() {
+        this.originX = 0;
+        this.originY = 0;
+        this.drawingMode = 2;
+    }
+    make(startX, startY, endX, endY, options, shift) {
         this.originX = startX;
         this.originY = startY;
         if (shift) {
@@ -508,14 +363,7 @@ class RectangleDrawTool implements IDrawTool {
             ...options
         });
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.Rect) {
             if (shift) {
                 const size = Math.max(Math.abs(this.originX - x), Math.abs(this.originY - y));
@@ -536,26 +384,18 @@ class RectangleDrawTool implements IDrawTool {
         return object;
     }
 }
-
-class TextDrawTool implements IDrawTool {
-    private originX: number = 0;
-    private originY: number = 0;
-
-    drawingMode: DrawingMode = DrawingMode.Text;
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean,
-        font?: string): fabric.IText {
+class TextDrawTool {
+    constructor() {
+        this.originX = 0;
+        this.originY = 0;
+        this.drawingMode = 4;
+    }
+    make(startX, startY, endX, endY, options, shift, font) {
         this.originX = startX;
         this.originY = startY;
         let sizeX = endX - startX;
         let sizeY = endY - startY;
-        let size: number = 0;
+        let size = 0;
         if (shift) {
             const absSizeX = Math.abs(sizeX);
             const absSizeY = Math.abs(sizeY);
@@ -565,26 +405,29 @@ class TextDrawTool implements IDrawTool {
                 if (xGreater) {
                     sizeX = maxSize;
                     sizeY = maxSize * (sizeX >= 0 !== sizeY >= 0 ? -1 : 1);
-                } else {
+                }
+                else {
                     sizeX = maxSize * (sizeX >= 0 !== sizeY >= 0 ? -1 : 1);
                     sizeY = maxSize;
                 }
                 size = Math.abs(Math.sqrt((maxSize * maxSize) * 2));
-            } else if (xGreater) {
+            }
+            else if (xGreater) {
                 sizeY = 0;
                 size = Math.abs(maxSize);
-            } else {
+            }
+            else {
                 sizeX = 0;
                 size = Math.abs(maxSize);
             }
-        } else {
+        }
+        else {
             size = Math.abs(Math.sqrt((sizeX * sizeX) + (sizeY * sizeY)));
         }
         let angle = Math.atan2(sizeY, sizeX);
         angle *= 180 / Math.PI;
         angle -= 90;
-
-        const opt: fabric.ITextOptions = {
+        const opt = {
             left: endX < startX ? endX : startX,
             top: endY < startY ? endY : startY,
             fontSize: size,
@@ -609,18 +452,11 @@ class TextDrawTool implements IDrawTool {
         text.enterEditing();
         return text;
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.IText) {
             let sizeX = x - this.originX;
             let sizeY = y - this.originY;
-            let size: number = 0;
+            let size = 0;
             if (shift) {
                 const absSizeX = Math.abs(sizeX);
                 const absSizeY = Math.abs(sizeY);
@@ -630,19 +466,23 @@ class TextDrawTool implements IDrawTool {
                     if (xGreater) {
                         sizeX = maxSize;
                         sizeY = maxSize * (sizeX >= 0 !== sizeY >= 0 ? -1 : 1);
-                    } else {
+                    }
+                    else {
                         sizeX = maxSize * (sizeX >= 0 !== sizeY >= 0 ? -1 : 1);
                         sizeY = maxSize;
                     }
                     size = Math.abs(Math.sqrt((maxSize * maxSize) * 2));
-                } else if (xGreater) {
+                }
+                else if (xGreater) {
                     sizeY = 0;
                     size = Math.abs(maxSize);
-                } else {
+                }
+                else {
                     sizeX = 0;
                     size = Math.abs(maxSize);
                 }
-            } else {
+            }
+            else {
                 size = Math.abs(Math.sqrt((sizeX * sizeX) + (sizeY * sizeY)));
             }
             let angle = Math.atan2(sizeY, sizeX);
@@ -655,8 +495,7 @@ class TextDrawTool implements IDrawTool {
         }
         return object;
     }
-
-    private textCurveActionHandler(eventData: MouseEvent, transform: Transform, x: number, y: number): boolean {
+    textCurveActionHandler(eventData, transform, x, y) {
         const activeItem = transform.target;
         if (!editor || !(activeItem instanceof fabric.IText)) {
             return false;
@@ -668,62 +507,41 @@ class TextDrawTool implements IDrawTool {
                 && (activeItem.curvePoint.x !== 0
                     || activeItem.curvePoint.y !== 0);
         }
-        const width = activeItem.width,
-            rotateMatrix = activeItem._calcRotateMatrix(),
-            translateMatrix = activeItem._calcTranslateMatrix(),
-            vpt = activeItem.getViewportTransform(),
-            startMatrix = fabric.util.multiplyTransformMatrices(vpt, translateMatrix);
+        const width = activeItem.width, rotateMatrix = activeItem._calcRotateMatrix(), translateMatrix = activeItem._calcTranslateMatrix(), vpt = activeItem.getViewportTransform(), startMatrix = fabric.util.multiplyTransformMatrices(vpt, translateMatrix);
         let finalMatrix = fabric.util.multiplyTransformMatrices(startMatrix, rotateMatrix);
         finalMatrix = fabric.util.multiplyTransformMatrices(finalMatrix, [1 / vpt[0], 0, 0, 1 / vpt[3], 0, 0]);
-        const dim = activeItem._calculateCurrentDimensions(),
-            pathLeft = fabric.util.transformPoint(new fabric.Point(-0.5 * dim.x, 0), finalMatrix),
-            pathRight = fabric.util.transformPoint(new fabric.Point(0.5 * dim.x, 0), finalMatrix),
-            path = [[
+        const dim = activeItem._calculateCurrentDimensions(), pathLeft = fabric.util.transformPoint(new fabric.Point(-0.5 * dim.x, 0), finalMatrix), pathRight = fabric.util.transformPoint(new fabric.Point(0.5 * dim.x, 0), finalMatrix), path = [[
                 'M',
                 pathLeft.x, pathLeft.y
             ], [
                 'Q',
                 x, y,
                 pathRight.x, pathRight.y
-            ]],
-            pathObject = new fabric.Path(path as any),
-            curvePoint = fabric.util.transformPoint(new fabric.Point(x, y), fabric.util.invertTransform(finalMatrix)),
-            scaledCurvePoint = { x: curvePoint.x / dim.x, y: curvePoint.y / dim.y };
+            ]], pathObject = new fabric.Path(path), curvePoint = fabric.util.transformPoint(new fabric.Point(x, y), fabric.util.invertTransform(finalMatrix)), scaledCurvePoint = { x: curvePoint.x / dim.x, y: curvePoint.y / dim.y };
         activeItem.curvePoint = scaledCurvePoint;
         editor.fabricCanvas.add(pathObject);
         pathObject.set({ width: width }).setCoords();
-        activeItem.set({ path: pathObject as any });
+        activeItem.set({ path: pathObject });
         editor.fabricCanvas.remove(pathObject);
         return true;
     }
-
-    private textCurvePositionHandler(dim: Dimensions, finalMatrix: any[], fabricObject: fabric.Object): fabric.Point {
+    textCurvePositionHandler(dim, finalMatrix, fabricObject) {
         if (!(fabricObject instanceof fabric.IText)) {
             return new fabric.Point(0, 0);
         }
         if (!fabricObject.curvePoint) {
             fabricObject.curvePoint = { x: 0, y: 0 };
         }
-        return fabric.util.transformPoint(new fabric.Point(
-            fabricObject.curvePoint.x * dim.x,
-            fabricObject.curvePoint.y * dim.y
-        ), finalMatrix);
+        return fabric.util.transformPoint(new fabric.Point(fabricObject.curvePoint.x * dim.x, fabricObject.curvePoint.y * dim.y), finalMatrix);
     }
 }
-
-class TriangleDrawTool implements IDrawTool {
-    private originX: number = 0;
-    private originY: number = 0;
-
-    drawingMode: DrawingMode = DrawingMode.Triangle;
-
-    make(
-        startX: number,
-        startY: number,
-        endX: number,
-        endY: number,
-        options: fabric.IObjectOptions,
-        shift: boolean): fabric.Triangle {
+class TriangleDrawTool {
+    constructor() {
+        this.originX = 0;
+        this.originY = 0;
+        this.drawingMode = 5;
+    }
+    make(startX, startY, endX, endY, options, shift) {
         this.originX = startX;
         this.originY = startY;
         if (shift) {
@@ -743,14 +561,7 @@ class TriangleDrawTool implements IDrawTool {
             ...options
         });
     }
-
-    resize(
-        object: fabric.Object,
-        x: number,
-        y: number,
-        ctl: boolean,
-        alt: boolean,
-        shift: boolean): fabric.Object {
+    resize(object, x, y, ctl, alt, shift) {
         if (object instanceof fabric.Triangle) {
             if (shift) {
                 const size = Math.max(Math.abs(this.originX - x), Math.abs(this.originY - y));
@@ -771,22 +582,18 @@ class TriangleDrawTool implements IDrawTool {
         return object;
     }
 }
-
 class StateManager {
-    private _currentState: string;
-    private _locked: boolean = false;
-    private _maxCount: number = 100;
-    private _redoStack: string[] = [];
-    private _undoStack: string[] = [];
-
-    constructor(readonly fabricCanvas: fabric.Canvas) {
+    constructor(fabricCanvas) {
+        this.fabricCanvas = fabricCanvas;
+        this._locked = false;
+        this._maxCount = 100;
+        this._redoStack = [];
+        this._undoStack = [];
         this._currentState = fabricCanvas.toDatalessJSON();
     }
-
-    redo(callback?: Function) {
+    redo(callback) {
         this.applyState(this._undoStack, this._redoStack.pop(), callback);
     }
-
     saveState() {
         if (this._locked) {
             return;
@@ -798,16 +605,13 @@ class StateManager {
         this._currentState = this.fabricCanvas.toDatalessJSON();
         this._redoStack = [];
     }
-
-    undo(callback?: Function) {
+    undo(callback) {
         this.applyState(this._redoStack, this._undoStack.pop(), callback);
     }
-
-    private applyState(stack: string[], state?: string, callback?: Function) {
+    applyState(stack, state, callback) {
         if (!state) {
             return;
         }
-
         stack.push(this._currentState);
         this._currentState = state;
         const self = this;
@@ -820,39 +624,36 @@ class StateManager {
         });
     }
 }
-
 class EditorClipboard {
-    private _clipObject: fabric.Object | undefined;
-
-    constructor(private readonly editor: Editor) { }
-
-    copy(callback?: Function) {
-        this.editor.fabricCanvas.getActiveObject().clone((object: fabric.Object) => {
+    constructor(editor) {
+        this.editor = editor;
+    }
+    copy(callback) {
+        this.editor.fabricCanvas.getActiveObject().clone((object) => {
             this._clipObject = object;
             if (typeof (callback) === 'function') {
                 callback();
             }
         });
     }
-
     cut() {
         this.copy(() => this.editor.deleteObjects());
     }
-
     paste() {
         if (!this._clipObject) {
             return;
         }
-        this._clipObject.clone((clonedObject: fabric.Object) => {
+        this._clipObject.clone((clonedObject) => {
             this.editor.fabricCanvas.discardActiveObject();
             if (clonedObject.type === 'activeSelection') {
                 clonedObject.canvas = this.editor.fabricCanvas;
                 let self = this;
-                (clonedObject as any).forEachObject(function (obj: fabric.Object) {
+                clonedObject.forEachObject(function (obj) {
                     self.editor.fabricCanvas.add(obj);
                 });
                 clonedObject.setCoords();
-            } else {
+            }
+            else {
                 this.editor.fabricCanvas.add(clonedObject);
             }
             this.editor.fabricCanvas.setActiveObject(clonedObject);
@@ -861,49 +662,22 @@ class EditorClipboard {
         });
     }
 }
-
 class Editor {
-    readonly clipboard: EditorClipboard;
-    readonly editorCanvas: HTMLCanvasElement;
-    readonly fabricCanvas: fabric.Canvas;
-    readonly stateManager: StateManager;
-
-    private readonly _drawTools: IDrawTool[];
-
-    private _alt: boolean = false;
-    public get alt(): boolean { return this._alt; }
-
-    private _ctl: boolean = false;
-    public get ctl(): boolean { return this._ctl; }
-
-    private _shift: boolean = false;
-    public get shift(): boolean { return this._shift; }
-
-    private _space: boolean = false;
-    public get space(): boolean { return this._space; }
-
-    private _aspectRatio: number = 4 / 3;
-    private _backgroundUrl: string | undefined;
-    private _border: fabric.Object | undefined;
-    private _borderColor: string | undefined;
-    private _borderWidth: number | undefined;
-    private _createdObject: fabric.Object | undefined;
-    private _cursorMode: CursorMode = CursorMode.Draw;
-    private _drawTool: IDrawTool;
-    private _drawToolOptions: fabric.IObjectOptions;
-    private _enableRotation: boolean = true;
-    private _font: string | undefined;
-    private _lastX: number = 0;
-    private _lastY: number = 0;
-    private _listeningForKeys: boolean = true;
-    private _mouseDown: boolean = false;
-    private _moving: boolean = false;
-    private _panning: boolean = false;
-    private _redraw: boolean = false;
-    private _resizeTimeout: number | undefined;
-    private _resizeTimeoutInner: number | undefined;
-
-    constructor(editorCanvas: HTMLCanvasElement) {
+    constructor(editorCanvas) {
+        this._alt = false;
+        this._ctl = false;
+        this._shift = false;
+        this._space = false;
+        this._aspectRatio = 4 / 3;
+        this._cursorMode = 0;
+        this._enableRotation = true;
+        this._lastX = 0;
+        this._lastY = 0;
+        this._listeningForKeys = true;
+        this._mouseDown = false;
+        this._moving = false;
+        this._panning = false;
+        this._redraw = false;
         this.editorCanvas = editorCanvas;
         this._drawTools = [
             new EllipseDrawTool(),
@@ -913,9 +687,7 @@ class Editor {
             new TextDrawTool(),
             new TriangleDrawTool(),
         ];
-
-        this._drawTool = this._drawTools[DrawingMode.Line];
-
+        this._drawTool = this._drawTools[1];
         this._drawToolOptions = {
             fill: '',
             shadow: '',
@@ -925,53 +697,45 @@ class Editor {
             selectable: true,
             strokeUniform: true,
         };
-
         this.fabricCanvas = new fabric.Canvas(this.editorCanvas, { selection: false });
-
         if (this.editorCanvas.parentElement
             && this.editorCanvas.parentElement.parentElement) {
             const bounds = this.editorCanvas.parentElement.parentElement.getBoundingClientRect();
             this.fabricCanvas.setDimensions({ width: bounds.width, height: Math.round(bounds.width / this._aspectRatio) });
         }
-
         this.initializeEvents();
-
         this.stateManager = new StateManager(this.fabricCanvas);
         this.clipboard = new EditorClipboard(this);
     }
-
+    get alt() { return this._alt; }
+    get ctl() { return this._ctl; }
+    get shift() { return this._shift; }
+    get space() { return this._space; }
     bringForward() {
         this.fabricCanvas.getActiveObject().bringForward(true);
     }
-
     bringToFront() {
         this.fabricCanvas.getActiveObject().bringToFront();
     }
-
     clear() {
         this.fabricCanvas.clear();
     }
-
     copy() {
         this.clipboard.copy();
     }
-
     cut() {
         this.clipboard.cut();
     }
-
     dispose() {
         window.removeEventListener("resize", this.resizeEvent);
         this.fabricCanvas.dispose();
     }
-
     deleteObjects() {
         this.fabricCanvas.remove(...this.fabricCanvas.getActiveObjects());
         this.fabricCanvas.discardActiveObject();
         this.saveState();
     }
-
-    enableRotation(value: boolean) {
+    enableRotation(value) {
         if (this._enableRotation === value) {
             return;
         }
@@ -980,21 +744,17 @@ class Editor {
             obj.setControlVisible('mtr', value);
         });
     }
-
     paste() {
         this.clipboard.paste();
     }
-
     redo() {
         this.stateManager.redo();
     }
-
     resizeEvent() {
         if (this._resizeTimeout) {
             clearTimeout(this._resizeTimeout);
         }
-
-        const handler: TimerHandler = () => {
+        const handler = () => {
             if (this.editorCanvas.parentElement
                 && this.editorCanvas.parentElement.parentElement) {
                 this.fabricCanvas.setDimensions({
@@ -1006,19 +766,15 @@ class Editor {
                 this.resizeEventInner();
             }
         };
-
         this._resizeTimeout = setTimeout(handler, 250);
     }
-
     sendBackwards() {
         this.fabricCanvas.getActiveObject().sendBackwards(true);
     }
-
     sendToBack() {
         this.fabricCanvas.getActiveObject().sendToBack();
     }
-
-    setBackgroundImage(imageUrl?: string) {
+    setBackgroundImage(imageUrl) {
         this._backgroundUrl = imageUrl;
         if (imageUrl
             && this.editorCanvas.parentElement
@@ -1029,7 +785,6 @@ class Editor {
                     self.fabricCanvas.setBackgroundImage('', self.fabricCanvas.renderAll.bind(self.fabricCanvas));
                     return;
                 }
-
                 self._aspectRatio = image.width / image.height;
                 if (self._borderWidth) {
                     self.fabricCanvas.setDimensions({
@@ -1044,7 +799,8 @@ class Editor {
                         originX: 'left',
                         originY: 'top',
                     });
-                } else {
+                }
+                else {
                     self.fabricCanvas.setDimensions({
                         width: image.width,
                         height: image.height
@@ -1055,13 +811,13 @@ class Editor {
                 }
                 self.resizeEvent();
             });
-        } else {
+        }
+        else {
             this.fabricCanvas.setBackgroundImage('', this.fabricCanvas.renderAll.bind(this.fabricCanvas));
         }
         this.saveState();
     }
-
-    setBorderColor(color?: string) {
+    setBorderColor(color) {
         if (this._borderColor !== color) {
             this._borderColor = color;
             if (this._borderWidth) {
@@ -1069,8 +825,7 @@ class Editor {
             }
         }
     }
-
-    setBorderPercent(value?: number) {
+    setBorderPercent(value) {
         if (!value) {
             this.setBorderWidth(value);
             return;
@@ -1080,8 +835,7 @@ class Editor {
             this.setBorderWidth(size * value);
         }
     }
-
-    setBorderWidth(value?: number) {
+    setBorderWidth(value) {
         if (this._borderWidth !== value) {
             this._borderWidth = value;
             this.drawBorder();
@@ -1090,26 +844,25 @@ class Editor {
             }
         }
     }
-
-    setDrawingMode(mode: DrawingMode) {
-        if (mode === DrawingMode.Free) {
+    setDrawingMode(mode) {
+        if (mode === 6) {
             this.fabricCanvas.isDrawingMode = true;
-        } else {
+        }
+        else {
             this.fabricCanvas.isDrawingMode = false;
             this._drawTool = this._drawTools[mode];
         }
     }
-
-    setFillColor(color?: string) {
+    setFillColor(color) {
         if (color) {
             this._drawToolOptions.fill = color;
-        } else {
+        }
+        else {
             this._drawToolOptions.fill = '';
         }
         this.setToolOptions();
     }
-
-    setFont(font: string) {
+    setFont(font) {
         if (!font) {
             return;
         }
@@ -1128,28 +881,25 @@ class Editor {
             },
         });
     }
-
-    setLineCap(cap?: StrokeLineCap) {
+    setLineCap(cap) {
         this._drawToolOptions.strokeLineCap = cap;
         this.setToolOptions();
     }
-
-    setRedraw(value: boolean) {
+    setRedraw(value) {
         this._redraw = value;
     }
-
-    setStrokeColor(color?: string) {
+    setStrokeColor(color) {
         if (color) {
             this._drawToolOptions.stroke = color;
             this.fabricCanvas.freeDrawingBrush.color = color;
-        } else {
+        }
+        else {
             this._drawToolOptions.stroke = 'transparent';
             this.fabricCanvas.freeDrawingBrush.color = 'black';
         }
         this.setToolOptions();
     }
-
-    setStrokeDash1(value?: number) {
+    setStrokeDash1(value) {
         if (value) {
             const dash = value * (this._drawToolOptions.strokeWidth ?? 1);
             const other = this._drawToolOptions.strokeDashArray
@@ -1157,22 +907,20 @@ class Editor {
                 && this._drawToolOptions.strokeDashArray.length >= 3
                 ? this._drawToolOptions.strokeDashArray[2]
                 : dash;
-            let space = Math.max(
-                (this._drawToolOptions.strokeWidth ?? 1),
-                Math.min(dash, other) / 2);
+            let space = Math.max((this._drawToolOptions.strokeWidth ?? 1), Math.min(dash, other) / 2);
             if (this._drawToolOptions.strokeLineCap === 'round') {
                 space += (this._drawToolOptions.strokeWidth ?? 1);
             }
             this._drawToolOptions.strokeDashArray = [dash, space, other, space];
-            (this.fabricCanvas.freeDrawingBrush as any).strokeDashArray = [dash, space, other, space];
-        } else {
+            this.fabricCanvas.freeDrawingBrush.strokeDashArray = [dash, space, other, space];
+        }
+        else {
             this._drawToolOptions.strokeDashArray = undefined;
-            (this.fabricCanvas.freeDrawingBrush as any).strokeDashArray = undefined;
+            this.fabricCanvas.freeDrawingBrush.strokeDashArray = undefined;
         }
         this.setToolOptions();
     }
-
-    setStrokeDash2(value?: number) {
+    setStrokeDash2(value) {
         if (value) {
             const dash = value * (this._drawToolOptions.strokeWidth ?? 1);
             const other = this._drawToolOptions.strokeDashArray
@@ -1180,23 +928,21 @@ class Editor {
                 && this._drawToolOptions.strokeDashArray.length >= 1
                 ? this._drawToolOptions.strokeDashArray[0]
                 : dash;
-            let space = Math.max(
-                (this._drawToolOptions.strokeWidth ?? 1),
-                Math.min(dash, other) / 2);
+            let space = Math.max((this._drawToolOptions.strokeWidth ?? 1), Math.min(dash, other) / 2);
             if (this._drawToolOptions.strokeLineCap === 'round') {
                 space += (this._drawToolOptions.strokeWidth ?? 1);
             }
             this._drawToolOptions.strokeDashArray = [other, space, dash, space];
-            (this.fabricCanvas.freeDrawingBrush as any).strokeDashArray = [other, space, dash, space];
-        } else {
+            this.fabricCanvas.freeDrawingBrush.strokeDashArray = [other, space, dash, space];
+        }
+        else {
             this._drawToolOptions.strokeDashArray = undefined;
-            (this.fabricCanvas.freeDrawingBrush as any).strokeDashArray = undefined;
+            this.fabricCanvas.freeDrawingBrush.strokeDashArray = undefined;
         }
         this.setToolOptions();
     }
-
-    setStrokeWidth(value?: number) {
-        value ??= 1;
+    setStrokeWidth(value) {
+        value ?? (value = 1);
         if (this._drawToolOptions.strokeWidth === value) {
             return;
         }
@@ -1205,21 +951,17 @@ class Editor {
             && this._drawToolOptions.strokeDashArray.length >= 3) {
             const dash1 = this._drawToolOptions.strokeDashArray[0] * value / (this._drawToolOptions.strokeWidth ?? 1);
             const dash2 = this._drawToolOptions.strokeDashArray[2] * value / (this._drawToolOptions.strokeWidth ?? 1);
-            const space = Math.max(
-                (this._drawToolOptions.strokeWidth ?? 1),
-                Math.min(dash1, dash2) / 2);
+            const space = Math.max((this._drawToolOptions.strokeWidth ?? 1), Math.min(dash1, dash2) / 2);
             this._drawToolOptions.strokeDashArray = [dash1, space, dash2, space];
         }
         this._drawToolOptions.strokeWidth = value;
         this.fabricCanvas.freeDrawingBrush.width = value;
         this.setToolOptions();
     }
-
     undo() {
         this.stateManager.undo();
     }
-
-    private constrainView() {
+    constrainView() {
         const vpt = this.fabricCanvas.viewportTransform;
         const zoom = this.fabricCanvas.getZoom();
         if (!vpt) {
@@ -1228,18 +970,19 @@ class Editor {
         const width = this.fabricCanvas.getWidth();
         if (vpt[4] >= 0) {
             vpt[4] = 0;
-        } else if (vpt[4] < width - width * zoom) {
+        }
+        else if (vpt[4] < width - width * zoom) {
             vpt[4] = width - width * zoom;
         }
         const height = this.fabricCanvas.getHeight();
         if (vpt[5] >= 0) {
             vpt[5] = 0;
-        } else if (vpt[5] < height - height * zoom) {
+        }
+        else if (vpt[5] < height - height * zoom) {
             vpt[5] = height - height * zoom;
         }
     }
-
-    private drawBorder() {
+    drawBorder() {
         if (this._border) {
             this.fabricCanvas.remove(this._border);
         }
@@ -1260,20 +1003,18 @@ class Editor {
         this.fabricCanvas.add(this._border);
         this.fabricCanvas.requestRenderAll();
     }
-
-    private initializeEvents() {
+    initializeEvents() {
         this.fabricCanvas.on('mouse:down', (e) => {
-            const _e = e.e as MouseEvent;
+            const _e = e.e;
             this._alt = _e.altKey;
             this._ctl = _e.ctrlKey;
             this._shift = _e.shiftKey;
             const pointer = this.fabricCanvas.getPointer(e.e);
             this.mouseDown(pointer.x, pointer.y);
         });
-
         this.fabricCanvas.on('mouse:move', (e) => {
             if (this._mouseDown) {
-                const _e = e.e as MouseEvent;
+                const _e = e.e;
                 this._alt = _e.altKey;
                 this._ctl = _e.ctrlKey;
                 this._shift = _e.shiftKey;
@@ -1281,7 +1022,6 @@ class Editor {
                 this.mouseMove(pointer.x, pointer.y);
             }
         });
-
         this.fabricCanvas.on('mouse:up', (e) => {
             this._mouseDown = false;
             this.fabricCanvas.selection = true;
@@ -1290,7 +1030,7 @@ class Editor {
             }
             this._panning = false;
             if (this._createdObject instanceof fabric.IText) {
-                this._cursorMode = CursorMode.Select;
+                this._cursorMode = 1;
                 if (this._createdObject.hiddenTextarea) {
                     this._createdObject.hiddenTextarea.focus();
                 }
@@ -1304,100 +1044,88 @@ class Editor {
             }
             this._createdObject = undefined;
         });
-
         this.fabricCanvas.on('mouse:wheel', (e) => {
-            const _e = e.e as WheelEvent;
+            const _e = e.e;
             let zoom = Math.max(1, Math.min(20, this.fabricCanvas.getZoom() * (0.999 ** _e.deltaY)));
             this.fabricCanvas.zoomToPoint(new fabric.Point(_e.offsetX, _e.offsetY), zoom);
             _e.preventDefault();
             _e.stopPropagation();
             this.constrainView();
         });
-
         this.fabricCanvas.on('object:modified', (e) => {
             this.saveState();
         });
-
         this.fabricCanvas.on('selection:created', (e) => {
-            this._cursorMode = CursorMode.Select;
+            this._cursorMode = 1;
         });
-
         this.fabricCanvas.on('selection:cleared', (e) => {
-            this._cursorMode = CursorMode.Draw;
+            this._cursorMode = 0;
         });
-
         this.fabricCanvas.on('text:editing:entered', (e) => {
             this._listeningForKeys = false;
-            this._cursorMode = CursorMode.Select;
+            this._cursorMode = 1;
             const obj = e.target;
             if (obj instanceof fabric.IText
                 && obj.curvePoint
                 && (obj.curvePoint.x !== 0
-                || obj.curvePoint.y !== 0)) {
+                    || obj.curvePoint.y !== 0)) {
                 obj.curvePoint = { x: 0, y: 0 };
                 obj.path = undefined;
             }
         });
-
         this.fabricCanvas.on('text:editing:exited', (e) => {
             this._listeningForKeys = true;
-            this._cursorMode = CursorMode.Draw;
+            this._cursorMode = 0;
             if (e.target) {
                 this.fabricCanvas.setActiveObject(e.target);
             }
             this.saveState();
         });
-
         window.addEventListener("resize", this.resizeEvent.bind(this));
         window.addEventListener("keydown", this.keyDownEvent.bind(this));
         window.addEventListener("keyup", this.keyUpEvent.bind(this));
     }
-
-    private keyDownEvent(ev: KeyboardEvent) {
+    keyDownEvent(ev) {
         if (!this._listeningForKeys) {
             return;
         }
-
         if (ev.key === " ") {
             this._space = true;
-        } else if (ev.key === "Delete") {
+        }
+        else if (ev.key === "Delete") {
             this.deleteObjects();
-        } else if (ev.key === "Copy"
+        }
+        else if (ev.key === "Copy"
             || (ev.key === "c" && ev.ctrlKey)) {
             this.copy();
-        } else if (ev.key === "Cut"
+        }
+        else if (ev.key === "Cut"
             || (ev.key === "x" && ev.ctrlKey)) {
             this.cut();
-        } else if (ev.key === "Paste"
+        }
+        else if (ev.key === "Paste"
             || (ev.key === "v" && ev.ctrlKey)) {
             this.paste();
-        } else if (ev.key === "Undo"
+        }
+        else if (ev.key === "Undo"
             || (ev.key === "z" && ev.ctrlKey)) {
             this.undo();
-        } else if (ev.key === "Redo"
+        }
+        else if (ev.key === "Redo"
             || (ev.key === "y" && ev.ctrlKey)) {
             this.redo();
         }
     }
-
-    private keyUpEvent(ev: KeyboardEvent) {
+    keyUpEvent(ev) {
         if (ev.key === " ") {
             this._space = false;
         }
     }
-
-    private make(startX: number, startY: number, endX: number, endY: number): fabric.Object {
+    make(startX, startY, endX, endY) {
         if (this._redraw) {
             this.fabricCanvas.remove(...this.fabricCanvas.getObjects());
         }
-        const obj = this._drawTool.make(
-            startX,
-            startY,
-            endX,
-            endY,
-            this._drawToolOptions,
-            this._shift,
-            this._font);
+        const obj = this._drawTool.make(startX, startY, endX, endY, this._drawToolOptions, this._shift, this._font);
         if (!this._enableRotation) {
             obj.setControlVisible('mtr', false);
         }
@@ -1405,25 +1133,26 @@ class Editor {
         this.saveState();
         return obj;
     }
-
-    private mouseDown(x: number, y: number): void {
+    mouseDown(x, y) {
         if (this._space) {
             this._mouseDown = true;
             this._panning = true;
             this.fabricCanvas.selection = false;
             this._lastX = x;
             this._lastY = y;
-        } else if (this._alt) {
-            const obj = this.fabricCanvas.getActiveObject() as fabric.Path;
+        }
+        else if (this._alt) {
+            const obj = this.fabricCanvas.getActiveObject();
             console.log(obj);
             if (obj instanceof fabric.Path) {
-                const tool = this._drawTools[DrawingMode.Path] as PathDrawTool;
+                const tool = this._drawTools[3];
                 this._mouseDown = true;
                 this.fabricCanvas.selection = false;
                 tool.addPoint(obj, x, y);
                 this.fabricCanvas.renderAll();
             }
-        } else if (this._cursorMode === CursorMode.Draw
+        }
+        else if (this._cursorMode === 0
             && !this.fabricCanvas.isDrawingMode
             && !this._alt
             && !this._ctl
@@ -1434,8 +1163,7 @@ class Editor {
             this._lastY = y;
         }
     }
-
-    private mouseMove(x: number, y: number): void {
+    mouseMove(x, y) {
         if (this._panning) {
             const vpt = this.fabricCanvas.viewportTransform;
             const zoom = this.fabricCanvas.getZoom();
@@ -1447,27 +1175,21 @@ class Editor {
             }
             this._lastX = x;
             this._lastY = y;
-        } else if (this._createdObject) {
+        }
+        else if (this._createdObject) {
             this._moving = true;
-            this._drawTool.resize(
-                this._createdObject,
-                x,
-                y,
-                this._ctl,
-                this._alt,
-                this._shift);
+            this._drawTool.resize(this._createdObject, x, y, this._ctl, this._alt, this._shift);
             this.fabricCanvas.renderAll();
-        } else {
+        }
+        else {
             this._createdObject = this.make(this._lastX, this._lastY, x, y);
         }
     }
-
-    private resizeEventInner() {
+    resizeEventInner() {
         if (this._resizeTimeoutInner) {
             clearTimeout(this._resizeTimeoutInner);
         }
-
-        const handler: TimerHandler = () => {
+        const handler = () => {
             if (this.editorCanvas.parentElement
                 && this.editorCanvas.parentElement.parentElement) {
                 const bounds = this.editorCanvas.parentElement.parentElement.getBoundingClientRect();
@@ -1480,122 +1202,108 @@ class Editor {
                 this.drawBorder();
             }
         };
-
         this._resizeTimeoutInner = setTimeout(handler, 10);
     }
-
-    private saveState() {
+    saveState() {
         this.stateManager.saveState();
         this.fabricCanvas.renderAll();
     }
-
-    private setToolOptions() {
+    setToolOptions() {
         this.fabricCanvas.getActiveObjects().forEach((obj) => {
             obj.set(this._drawToolOptions);
         });
         this.fabricCanvas.requestRenderAll();
     }
 }
-let editor: Editor | undefined;
-
-export function bringForward(): void {
+let editor;
+export function bringForward() {
     if (editor) {
         editor.bringForward();
     }
 }
-
-export function bringToFront(): void {
+export function bringToFront() {
     if (editor) {
         editor.bringToFront();
     }
 }
-
-export function clear(): void {
+export function clear() {
     if (editor) {
         editor.clear();
     }
 }
-
-export function copy(): void {
+export function copy() {
     if (editor) {
         editor.copy();
     }
 }
-
-export function cut(): void {
+export function cut() {
     if (editor) {
         editor.cut();
     }
 }
-
-export function deleteObjects(): void {
+export function deleteObjects() {
     if (editor) {
         editor.deleteObjects();
     }
 }
-
 export function dispose() {
     if (editor) {
         editor.dispose();
     }
 }
-
-export function enableRotation(value?: boolean): void {
+export function enableRotation(value) {
     if (!editor) {
         return;
     }
     editor.enableRotation(value || false);
 }
-
-export function getJSON(): string {
+export function getJSON() {
     if (editor) {
         return JSON.stringify(editor.fabricCanvas);
     }
     return '';
 }
-
-export async function getObjUrl(): Promise<string> {
+export async function getObjUrl() {
     if (!editor) {
         return "";
     }
-
-    const url = await new Promise(function (resolve: (url: string) => void): void {
+    const url = await new Promise(function (resolve) {
         if (editor) {
             editor.fabricCanvas.discardActiveObject().renderAll();
             editor.editorCanvas.toBlob((blob) => {
                 if (blob) {
                     resolve(URL.createObjectURL(blob));
-                } else {
+                }
+                else {
                     resolve("");
                 }
             });
-        } else {
+        }
+        else {
             resolve("");
         }
     });
-
     return url;
 }
-
-export function loadEditor(editorCanvas: HTMLCanvasElement, imageUrl?: string): void {
+export function loadEditor(editorCanvas, imageUrl) {
     if (!editor) {
         editor = new Editor(editorCanvas);
-    } else {
+    }
+    else {
         editor.clear();
     }
     if (imageUrl) {
         editor.setBackgroundImage(imageUrl);
     }
 }
-
-export function loadJSON(json?: string): void {
+export function loadJSON(json) {
     if (!editor) {
         return;
     }
     if (json) {
         editor.fabricCanvas.loadFromJSON(json, () => {
-            const fonts: string[] = [];
-            editor!.fabricCanvas.forEachObject((obj) => {
+            const fonts = [];
+            editor.fabricCanvas.forEachObject((obj) => {
                 if (obj instanceof fabric.IText
                     && obj.fontFamily) {
                     fonts.push(obj.fontFamily);
@@ -1608,37 +1316,32 @@ export function loadJSON(json?: string): void {
                         families: fonts
                     },
                     active: function () {
-                        editor!.fabricCanvas.requestRenderAll();
+                        editor.fabricCanvas.requestRenderAll();
                     },
                 });
             }
         });
     }
 }
-
-export function paste(): void {
+export function paste() {
     if (editor) {
         editor.paste();
     }
 }
-
-export function redo(): void {
+export function redo() {
     if (editor) {
         editor.redo();
     }
 }
-
-export function resize(): void {
+export function resize() {
     if (editor) {
         editor.resizeEvent();
     }
 }
-
-export function revokeObjUrl(url: any): void {
+export function revokeObjUrl(url) {
     URL.revokeObjectURL(url);
 }
-
-export function saveImage(): void {
+export function saveImage() {
     if (editor) {
         const link = document.createElement('a');
         link.setAttribute('download', 'image.png');
@@ -1646,62 +1349,53 @@ export function saveImage(): void {
         link.click();
     }
 }
-
-export function setBackgroundImage(imageUrl?: string): void {
+export function setBackgroundImage(imageUrl) {
     if (!editor) {
         return;
     }
     editor.setBackgroundImage(imageUrl);
 }
-
-export function sendBackwards(): void {
+export function sendBackwards() {
     if (editor) {
         editor.sendBackwards();
     }
 }
-
-export function sendToBack(): void {
+export function sendToBack() {
     if (editor) {
         editor.sendToBack();
     }
 }
-
-export function setBorderColor(color?: string): void {
+export function setBorderColor(color) {
     if (!editor) {
         return;
     }
     editor.setBorderColor(color);
 }
-
-export function setBorderPercent(value?: number): void {
+export function setBorderPercent(value) {
     if (!editor) {
         return;
     }
     editor.setBorderPercent(value);
 }
-
-export function setBorderWidth(value?: number): void {
+export function setBorderWidth(value) {
     if (!editor) {
         return;
     }
     editor.setBorderWidth(value);
 }
-
-export function setDrawingMode(mode: DrawingMode): void {
+export function setDrawingMode(mode) {
     if (!editor) {
         return;
     }
     editor.setDrawingMode(mode);
 }
-
-export function setFillColor(color?: string): void {
+export function setFillColor(color) {
     if (!editor) {
         return;
     }
     editor.setFillColor(color);
 }
-
-export function setFont(font?: string): void {
+export function setFont(font) {
     if (!font) {
         return;
     }
@@ -1710,51 +1404,45 @@ export function setFont(font?: string): void {
     }
     editor.setFont(font);
 }
-
-export function setLineCap(cap?: StrokeLineCap): void {
+export function setLineCap(cap) {
     if (!editor) {
         return;
     }
     editor.setLineCap(cap);
 }
-
-export function setRedraw(value?: boolean): void {
+export function setRedraw(value) {
     if (!editor) {
         return;
     }
     editor.setRedraw(value || false);
 }
-
-export function setStrokeColor(color?: string): void {
+export function setStrokeColor(color) {
     if (!editor) {
         return;
     }
     editor.setStrokeColor(color);
 }
-
-export function setStrokeDash1(value?: number): void {
+export function setStrokeDash1(value) {
     if (!editor) {
         return;
     }
     editor.setStrokeDash1(value);
 }
-
-export function setStrokeDash2(value?: number): void {
+export function setStrokeDash2(value) {
     if (!editor) {
         return;
     }
     editor.setStrokeDash2(value);
 }
-
-export function setStrokeWidth(value?: number): void {
+export function setStrokeWidth(value) {
     if (!editor) {
         return;
     }
     editor.setStrokeWidth(value);
 }
-
-export function undo(): void {
+export function undo() {
     if (editor) {
         editor.undo();
     }
 }
+//# sourceMappingURL=tavenem-image-editor.js.map

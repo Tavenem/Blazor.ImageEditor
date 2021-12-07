@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0-preview
+### Changed
+- Remove Bootstrap dependency
+- Bundle WebFont, eliminating need for script tag in host
+- Update to Fabric.js 4.6.0
+- Update to Node.js 17
+
 ## 0.4.1-preview
 ### Changed
 - Column sizing

@@ -21,11 +21,10 @@ Tavenem.Blazor.ImageEditor is available as a [NuGet package](https://www.nuget.o
 `Program.Main` for a Blazor WebAssembly project, or `Startup.ConfigureServices` for a Blazor server
 project).
 
-1. Add the following css references to the head section of your index.html (for Blazor WebAssembly)
+1. Add the following css reference to the head section of your index.html (for Blazor WebAssembly)
    or _Host.cshtml (for Blazor server):
 
    ````html
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
    <link rel="stylesheet" href="_content/Tavenem.Blazor.ImageEditor/style.css" />
    ````
 
@@ -38,21 +37,12 @@ project).
    it must apply outside the scope of the component. It refers to a dynamically-generated DOM
    element managed by the [Fabric.js](http://fabricjs.com/) library which is appended to the body.
 
-   You may supply any version of Bootstrap compatible with the listed version. Alternatively, you
-   may omit the Bootstrap reference entirely. However, the control will not display well unless you
-   provide compatible alternative styling in your own stylesheets.
-
-1. Add the following script references to the bottom fo the body section of your index.html (for
+1. Add the following script reference to the bottom of the body section of your index.html (for
    Blazor WebAssembly) or _Host.cshtml (for Blazor server):
 
    ````html
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.1/fabric.min.js" integrity="sha512-ACqMrfAtm537AWzgx/xQ57JnFxXeq8RylQMGg4y/e6M2ew4Z8NycE8aId/Bt2ZE+w1gNsox3MgwxKl7SGMRdtA==" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/460/fabric.min.js"></script>
    ````
-
-   Why use external resources instead of packaging the libraries with the RCL? Because it keeps the
-   package (and any downstream packages you build with it) small; and because it can improve browser
-   caching, especially if the libraries and this package have different update cycles.
 
 1. Include an `ImageEditor` component on a page.
 

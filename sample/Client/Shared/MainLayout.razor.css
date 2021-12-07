@@ -15,6 +15,8 @@
     height: 3.5rem;
     display: flex;
     align-items: center;
+    padding-bottom: 1.5rem;
+    padding-top: 1.5rem;
 }
 
     .top-row ::deep a, .top-row .btn-link {
@@ -51,6 +53,9 @@
         top: 0;
         z-index: 1;
     }
+        .top-row a {
+            margin-left: auto;
+        }
 
     .main > div {
         padding-left: 2rem !important;

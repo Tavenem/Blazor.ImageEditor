@@ -1,4 +1,14 @@
-﻿#loader {
+﻿.container {
+    display: flex;
+    flex-grow: 1;
+    position: relative;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+#loader {
     background-color: rgba(255, 255, 255, 0.5);
     height: 100%;
     left: 0;
