@@ -23,20 +23,8 @@ jobs:
         with:
           node-version: 17.x
 
-      - name: Install dependencies
-        run: dotnet restore
-        working-directory: ./src
-
-      - name: npm ci
-        run: npm ci
-        working-directory: ./src
-
-      - name: npm build
-        run: npm run build --if-present
-        working-directory: ./src
-
       - name: Build
-        run: dotnet build --configuration Release -p:Version=${{ env.VERSION }} --no-restore --nologo
+        run: dotnet build --configuration Release -p:Version=${{ env.VERSION }} --nologo
         working-directory: ./src
 
       #- name: Test
